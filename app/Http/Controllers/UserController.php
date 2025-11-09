@@ -34,7 +34,7 @@ public function destroy($id){
     $user = User::findOrFail($id);
     $user->delete(); // 👈 Soft delete (não apaga do banco)
 
-    return redirect()->route('TelaInicio')->with('success', 'Usuário deletado com sucesso!');
+    return redirect()->route('welcome')->with('success', 'Usuário deletado com sucesso!');
 }
 
 }

@@ -42,20 +42,22 @@
     </div>
 </nav>
     <!-- Área central -->
-    <div>
-        <!-- Formulário -->
-        <form id="formLogin" action="#" method="POST">
-            <!-- Botões -->
-            <div class="d-flex justify-content-between">
-                <form action="{{ route('user.destroy', Auth::user()->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja deletar sua conta?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Deletar Usuário</button>
-                </form>
-                <button type="submit" class="btn btn-primary">Editar Usuário</button>
-            </div>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between">
+        
+        <!-- Botão de deletar -->
+        <form action="{{ route('user.destroy', Auth::user()->id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja deletar sua conta?')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">Deletar Usuário</button>
         </form>
+
+        <!-- Botão de editar -->
+        <a href="{{ route('user.edit', Auth::user()->id) }}" class="btn btn-primary">Editar Usuário</a>
+
     </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"crossorigin="anonymous"></script>
