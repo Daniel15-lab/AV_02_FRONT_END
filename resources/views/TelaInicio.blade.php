@@ -26,7 +26,7 @@
         <!-- Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ route('usuario') }}">Usuário</a></li>
+                <li class="nav-item btn btn-success"><a class="nav-link active" aria-current="page" href="{{ route('usuario') }}">Usuário</a></li>
                 <!--<li class="nav-item"><a class="nav-link" href="#">Sobre</a></li>-->
                 <!--<li class="nav-item"><a class="nav-link" href="#">Contato</a></li>-->
 
