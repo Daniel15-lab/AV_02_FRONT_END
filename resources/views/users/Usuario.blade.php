@@ -53,7 +53,7 @@
         </form>
 
         <!-- Botão para encaminha para edicao -->
-        <a href="{{ route('editarusuario', Auth::user()->id) }}" class="btn btn-primary">Editar Usuário</a>
+        <a href="{{ route('user.edit', Auth::user()->id) }}" class="btn btn-primary">Editar Usuário</a>
 
     </div>
 </div>

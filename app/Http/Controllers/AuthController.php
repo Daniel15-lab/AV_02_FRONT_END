@@ -12,7 +12,7 @@ class AuthController extends Controller
     // Mostra o formulário de login
     public function showLoginForm()
     {
-        return view('TelaInicio'); // o nome da view que você já criou
+        return redirect()->route('TelaInicio');
     }
 
     // Faz o login

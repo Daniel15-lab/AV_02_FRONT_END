@@ -1,8 +1,10 @@
 <?php
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LoginControler;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ContaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,20 +22,12 @@ Route::post('/login', [LoginControler::class, 'login'])->name('login.enter');
 Route::post('/logout', [LoginControler::class, 'logout'])->middleware('auth')->name('logout');
 
 //Redireciona para view Tela Inicio (->middleware('auth')) serve para proteger o usuario
-Route::get('/inicio', function () {
-    return view('TelaInicio');
-})->middleware('auth')->name('TelaInicio');
+Route::get('/inicio', [ContaController::class, 'index'])->middleware('auth')->name('TelaInicio');
 
 // Redireciona para a view 
 Route::get('/usuario', function () {
-    return view('users.Usuario');
+    return view('users/Usuario');
 })->middleware('auth')->name('usuario');
-
-// Redireciona para a de edicao
-Route::get('/EditarUsuario/{id}', [UserController::class, 'edit'])
-    ->middleware('auth')
-    ->name('editarusuario');
-
 
 // Editar usuário
 Route::get('/user/{id}/edit', [UserController::class, 'edit'])
