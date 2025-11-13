@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Conta;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContaController extends Controller
 {
@@ -12,7 +13,7 @@ class ContaController extends Controller
     {
         $contas = Conta::orderBy('id', 'desc')->get();
         return view('TelaInicio', compact('contas'));
-        // 👆 Aqui você pode usar 'TelaInicio' ou 'contas.index', dependendo do nome da view
+
     }
 
     // Mostra o formulário de criação
@@ -61,10 +62,10 @@ class ContaController extends Controller
         return redirect()->route('TelaInicio')->with('success', 'Conta atualizada com sucesso!');
     }
 
-    //  Exclui a conta
+    // Exclui a conta (soft delete)
     public function destroy(Conta $conta)
     {
         $conta->delete();
-        return redirect()->route('TelaInicio')->with('success', 'Conta excluída com sucesso!');
+        return redirect()->route('TelaInicio')->with('success', 'Conta movida para a lixeira!');
     }
 }

@@ -38,3 +38,21 @@ Route::put('/user/{id}', [UserController::class, 'update'])
 // Soft delete
 Route::delete('/user/{id}', [UserController::class, 'destroy'])
 ->middleware('auth')->name('user.destroy');
+
+// Tela de criar nova conta
+Route::get('/contas/create', [ContaController::class, 'create'])->name('contas.create');
+
+// Enviar formulário de criação
+Route::post('/contas', [ContaController::class, 'store'])->name('contas.store');
+
+// Exibir uma conta
+Route::get('/contas/{conta}', [ContaController::class, 'show'])->name('contas.show');
+
+// Editar
+Route::get('/contas/{conta}/edit', [ContaController::class, 'edit'])->name('contas.edit');
+
+// Atualizar
+Route::put('/contas/{conta}', [ContaController::class, 'update'])->name('contas.update');
+
+// Deletar
+Route::delete('/contas/{conta}', [ContaController::class, 'destroy'])->name('contas.destroy');

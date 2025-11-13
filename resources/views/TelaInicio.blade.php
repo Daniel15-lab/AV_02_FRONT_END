@@ -51,7 +51,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Contas a Pagar</h3>
         <div>
-            <a href="#" class="btn btn-success">+ Adicionar</a>
+            <a href="{{ route('contas.create') }}" class="btn btn-success">+ Adicionar</a>
         </div>
     </div>
 
@@ -97,13 +97,14 @@
                             <a href="{{ route('contas.edit', $conta->id) }}" class="btn btn-primary btn-sm">
                                 <i class="bi bi-pencil"></i> Editar
                             </a>
-                            <form action="{{ route('contas.destroy', $conta->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i> Excluir
-                                </button>
-                            </form>
+                            <form action="{{ route('contas.destroy', $conta->id) }}" method="POST" class="d-inline delete-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-danger btn-sm btn-confirm-delete" 
+                                            data-id="{{ $conta->id }}">
+                                        <i class="bi bi-trash"></i> Excluir
+                                    </button>
+                                </form>
                         </td>
                     </tr>
                     @endforeach
@@ -112,8 +113,46 @@
         </div>
     </div>
 </div>
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteLabel">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        Tem certeza que deseja excluir esta conta?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let formToSubmit = null; // armazena o form que o usuário quer excluir
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        const confirmButton = document.getElementById('confirmDeleteBtn');
 
+        document.querySelectorAll('.btn-confirm-delete').forEach(button => {
+            button.addEventListener('click', function () {
 
+                formToSubmit = this.closest('form');
+                modal.show();
+            });
+        });
+
+        confirmButton.addEventListener('click', function () {
+            if (formToSubmit) {
+                formToSubmit.submit(); 
+            }
+            modal.hide();
+        });
+    });
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
