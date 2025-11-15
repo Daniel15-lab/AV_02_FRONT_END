@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ContaController extends Controller
 {
     // Lista todas as contas e envia para a view
-    public function index()
-    {
-        $contas = Conta::orderBy('id', 'desc')->get();
-        return view('TelaInicio', compact('contas'));
+public function index()
+{
+    $contas = Conta::orderBy('id', 'desc')->get();
+    $totalAbertas = Conta::where('status', 'Aberta')->sum('preco');
 
-    }
-
+    return view('TelaInicio', compact('contas', 'totalAbertas'));
+}
     // Mostra o formulário de criação
     public function create()
     {

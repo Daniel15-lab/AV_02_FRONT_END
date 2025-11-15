@@ -37,7 +37,7 @@
                     <li class="nav-item ms-3">
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-danger btn-sm">Sair</button>
+                            <button type="button" class="btn btn-danger btn-sm btn-confirm-logout">Sair</button>
                         </form>
                     </li>
                 @endif
@@ -45,8 +45,25 @@
         </div>
     </div>
 </nav>
-
-
+<!-- Modal de confirmação de logout -->
+<div class="modal fade" id="confirmLogoutModal" tabindex="-1" aria-labelledby="confirmLogoutLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="confirmLogoutLabel">Confirmar Saída</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        Tem certeza que deseja sair da sua conta?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="confirmLogoutBtn" class="btn btn-warning text-dark">Sair</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--tabela de contas-->
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Contas a Pagar</h3>
@@ -113,6 +130,15 @@
         </div>
     </div>
 </div>
+<!--soma das contas abertas-->
+<div class="container mt-4 d-flex justify-content-center">
+    <div class="card shadow-sm p-3 text-center" style="max-width: 350px;">
+        <h5 class="mb-2">Total das Contas Abertas</h5>
+        <span class="badge bg-info fs-5">
+            R$ {{ number_format($totalAbertas, 2, ',', '.') }}
+        </span>
+    </div>
+</div>
 <!-- Modal de Confirmação -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -150,6 +176,28 @@
                 formToSubmit.submit(); 
             }
             modal.hide();
+        });
+    });
+</script>
+<!--script para o logout-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let logoutForm = null;
+        const logoutModal = new bootstrap.Modal(document.getElementById('confirmLogoutModal'));
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+        // Quando clicar no botão de sair
+        document.querySelectorAll('.btn-confirm-logout').forEach(button => {
+            button.addEventListener('click', function () {
+                logoutForm = this.closest('form');
+                logoutModal.show();
+            });
+        });
+
+        // Quando confirmar no modal
+        confirmLogoutBtn.addEventListener('click', function () {
+            if (logoutForm) logoutForm.submit();
+            logoutModal.hide();
         });
     });
 </script>
