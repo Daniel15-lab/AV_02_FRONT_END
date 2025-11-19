@@ -1,58 +1,64 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LoginControler;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginControler;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ContaController;
+use Illuminate\Support\Facades\Auth;
 
+// View principal (React)
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-//criacao do usuario
-Route::get('/create.user', [UserController::class, 'create'])
-->name('user.create');
-Route::post('/store.user', [UserController::class, 'store'])
-->name('user.store');
+// Cadastro usuário (React)
+Route::get('/create.user', function () {
+    return view('welcome');
+})->name('user.create');
 
-//Login
-Route::get('/login', [LoginControler::class, 'showLoginForm'])->name('login');
+// Rotas protegidas (React controla front-end)
+Route::middleware('auth')->group(function () {
+    Route::get('/inicio', function () {
+        return view('welcome');
+    })->name('TelaInicio');
+
+    Route::get('/usuario', function () {
+        return view('welcome');
+    })->name('usuario');
+
+    Route::get('/usuario/editar', function () {
+        return view('welcome');
+    });
+
+    Route::get('/conta/adicionar', function () {
+        return view('welcome');
+    });
+
+    Route::get('/conta/{id}', function () {
+        return view('welcome');
+    });
+
+    Route::get('/conta/{id}/editar', function () {
+        return view('welcome');
+    });
+
+    // Endpoints de CRUD do back-end
+    Route::post('/contas', [ContaController::class, 'store'])->name('contas.store');
+    Route::put('/contas/{conta}', [ContaController::class, 'update'])->name('contas.update');
+    Route::delete('/contas/{conta}', [ContaController::class, 'destroy'])->name('contas.destroy');
+    Route::get('/contas-json', [ContaController::class, 'getContasJson'])->name('contas.json');
+
+    // Usuário CRUD via back-end
+    Route::post('/store.user', [UserController::class, 'store'])->name('user.store'); // Criar usuário
+    Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+});
+
+// Rota para verificar se o usuário está logado
+Route::get('/user-logado', function () {
+    return response()->json(['auth' => Auth::check()]);
+});
+
+// Autenticação
 Route::post('/login', [LoginControler::class, 'login'])->name('login.enter');
-Route::post('/logout', [LoginControler::class, 'logout'])->middleware('auth')->name('logout');
-
-//Redireciona para view Tela Inicio (->middleware('auth')) serve para proteger o usuario
-Route::get('/inicio', [ContaController::class, 'index'])->middleware('auth')->name('TelaInicio');
-
-// Redireciona para a view 
-Route::get('/usuario', function () {
-    return view('users/Usuario');
-})->middleware('auth')->name('usuario');
-
-// Editar usuário
-Route::get('/user/{id}/edit', [UserController::class, 'edit'])
-->middleware('auth')->name('user.edit');
-Route::put('/user/{id}', [UserController::class, 'update'])
-->middleware('auth')->name('user.update');
-
-// Soft delete
-Route::delete('/user/{id}', [UserController::class, 'destroy'])
-->middleware('auth')->name('user.destroy');
-
-// Tela de criar nova conta
-Route::get('/contas/create', [ContaController::class, 'create'])->name('contas.create');
-
-// Enviar formulário de criação
-Route::post('/contas', [ContaController::class, 'store'])->name('contas.store');
-
-// Exibir uma conta
-Route::get('/contas/{conta}', [ContaController::class, 'show'])->name('contas.show');
-
-// Editar
-Route::get('/contas/{conta}/edit', [ContaController::class, 'edit'])->name('contas.edit');
-
-// Atualizar
-Route::put('/contas/{conta}', [ContaController::class, 'update'])->name('contas.update');
-
-// Deletar
-Route::delete('/contas/{conta}', [ContaController::class, 'destroy'])->name('contas.destroy');
+Route::post('/logout', [LoginControler::class, 'logout'])->name('logout');

@@ -14,10 +14,13 @@ class LoginControler extends Controller
     {
         return view('TelaInicio');
     }
-    /*Realiza o login do usuário.*/
+
+    /**
+     * Realiza o login do usuário via JSON.
+     */
     public function login(Request $request)
     {
-        // Valida os campos do formulário
+        // Validação básica
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
@@ -28,20 +31,22 @@ class LoginControler extends Controller
             'password.min' => 'A senha deve ter no mínimo 6 caracteres.',
         ]);
 
-        // Pega apenas os campos necessários
+        // Pega os dados enviados
         $credentials = $request->only('email', 'password');
 
-        // Tenta autenticar o usuário
+        // Tenta autenticar
         if (Auth::attempt($credentials)) {
-            // Gera nova sessão e redireciona
             $request->session()->regenerate();
-            return redirect()->route('TelaInicio')->with('success', 'Login realizado com sucesso!');
+
+            return response()->json([
+                "message" => "ok"
+            ], 200);
         }
 
-        // Se falhar, retorna com erro
-        return back()->withErrors([
-            'error' => 'E-mail ou senha inválidos.',
-        ])->onlyInput('email'); // mantém o e-mail no campo
+        // Login inválido
+        return response()->json([
+            "message" => "invalid"
+        ], 401);
     }
 
     /**
@@ -51,10 +56,12 @@ class LoginControler extends Controller
     {
         Auth::logout();
 
-        // Invalida e regenera o token da sessão
+        // Invalida a sessão
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('welcome')->with('success', 'Você saiu com sucesso.');
+        return response()->json([
+            "message" => "logged_out"
+        ], 200);
     }
 }

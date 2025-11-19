@@ -1,0 +1,147 @@
+import React, { useState } from "react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
+export default function CadastrarUsuario() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [success, setSuccess] = useState("");
+    const [error, setError] = useState("");
+
+    // Logout
+    const handleLogout = async () => {
+        try {
+            await axios.post("/logout");
+        } finally {
+            window.location.href = "/";
+        }
+    };
+
+    // Submit do cadastro
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSuccess("");
+        setError("");
+
+        try {
+            const response = await axios.post("/store.user", {
+                name,
+                email,
+                password,
+            });
+
+            setSuccess(response.data.message || "Usuário cadastrado!");
+            setName("");
+            setEmail("");
+            setPassword("");
+        } catch (err) {
+            setError("Erro ao cadastrar. Verifique os dados.");
+        }
+    };
+
+    return (
+        <div className="bg-light min-vh-100">
+
+            {/* Navbar */}
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div className="container-fluid">
+                    <a className="navbar-brand text-light" href="/">Marca I</a>
+
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav ms-auto">
+                            <li className="nav-item ms-3">
+                                <button
+                                    className="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmLogoutModal"
+                                >
+                                    Sair
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Modal de logout */}
+            <div className="modal fade" id="confirmLogoutModal" tabIndex="-1">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content shadow-lg border-0">
+                        <div className="modal-header bg-warning text-dark">
+                            <h5 className="modal-title">Confirmar Saída</h5>
+                            <button className="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div className="modal-body">
+                            Tem certeza que deseja sair?
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button className="btn btn-warning text-dark" onClick={handleLogout}>Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Conteúdo */}
+            <div className="container mt-5">
+                <div className="card shadow-sm">
+                    <div className="card-header bg-white">
+                        <h4 className="mb-0">Cadastrar Usuário</h4>
+                    </div>
+
+                    <div className="card-body">
+
+                        {/* Mensagens */}
+                        {success && <div className="alert alert-success">{success}</div>}
+                        {error && <div className="alert alert-danger">{error}</div>}
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-3">
+                                <label className="form-label">Nome:</label>
+                                <input
+                                    type="text"
+                                    className="form-control bg-light"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Digite o nome"
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label">E-mail:</label>
+                                <input
+                                    type="email"
+                                    className="form-control bg-light"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Digite o e-mail"
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label">Senha:</label>
+                                <input
+                                    type="password"
+                                    className="form-control"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Senha do usuário"
+                                />
+                            </div>
+
+                            <button type="submit" className="btn btn-success">Cadastrar</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

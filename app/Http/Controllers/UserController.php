@@ -14,20 +14,30 @@ class UserController extends Controller
         //caregar view
         return view('users.create');
     }
-        public function store(Request $request)
-    {
-        try {
-        //caregar view
-        User::create($request->all());
+       public function store(Request $request)
+{
+    try {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+        ]);
 
-        return redirect()->route('user.create')->with('success', 'Usuario Cadastrado');
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
 
-        }catch (Exception $e){
-              return back()->withInput()->with('error', 'Usuario não Cadastrado');
+        return response()->json(['message' => 'Usuário cadastrado com sucesso!']);
+        
+    } catch (Exception $e) {
+        return response()->json(['error' => 'Erro ao cadastrar usuário'], 500);
     }
-} 
+}
+
 public function destroy($id){
-// Garante que o usuário só pode deletar a própria conta
+// Garante que o usuário só pode deletar somente a própria conta
     if (Auth::id() != $id) {
     return redirect()->back()->with('error', 'Ação não permitida.');
     }

@@ -1,4 +1,13 @@
-import axios from 'axios';
-window.axios = axios;
+import axios from "axios";
 
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+
+const token = document.querySelector('meta[name="csrf-token"]');
+
+if (token) {
+    axios.defaults.headers.common["X-CSRF-TOKEN"] = token.content;
+} else {
+    console.error("CSRF token não encontrado!");
+}
+
+window.axios = axios;
