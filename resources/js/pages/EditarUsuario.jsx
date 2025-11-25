@@ -1,191 +1,171 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-export default function EditarConta() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+export default function EditarUsuario() {
+    const navigate = useNavigate();
 
-  const [conta, setConta] = useState({
-    descricao: "",
-    preco: "",
-    data_vencimento: "",
-    data_pagamento: "",
-    status: "Aberta",
-  });
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  const [errors, setErrors] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
-  // Formata datas para Laravel
-  const formatDate = (date) => {
-    if (!date) return null;
-    return date.replace("T", " ") + ":00";
-  };
+    const [errors, setErrors] = useState([]);
+    const [successMessage, setSuccessMessage] = useState("");
 
-  // Buscar conta pelo ID
-  useEffect(() => {
-    api.get(`/contas/${id}`)
-      .then((res) => {
-        const data = res.data;
-        setConta({
-          descricao: data.descricao || "",
-          preco: data.preco || "",
-          data_vencimento: data.data_vencimento
-            ? new Date(data.data_vencimento).toISOString().slice(0, 16)
-            : "",
-          data_pagamento: data.data_pagamento
-            ? new Date(data.data_pagamento).toISOString().slice(0, 16)
-            : "",
-          status: data.status || "Aberta",
-        });
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err.response?.data || err);
-        alert("Erro ao carregar a conta.");
-        navigate("/inicio");
-      });
-  }, [id]);
+    // Carregar dados do usuário
+    useEffect(() => {
+        api.get("/me")
+            .then((res) => {
+                setUser(res.data);
+                setName(res.data.name);
+                setEmail(res.data.email);
+            })
+            .catch(() => {
+                localStorage.removeItem("token");
+                navigate("/");
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
-  // Atualizar campos
-  const handleChange = (e) => {
-    setConta({ ...conta, [e.target.name]: e.target.value });
-  };
+    // Enviar formulário
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrors([]);
+        setSuccessMessage("");
 
-  // Submeter alteração
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors([]);
+        try {
+            const res = await api.put(`/user/${user.id}`, {
+                name,
+                email,
+                password,
+                password_confirmation: passwordConfirmation
+            });
 
-    const payload = {
-      ...conta,
-      data_vencimento: formatDate(conta.data_vencimento),
-      data_pagamento: formatDate(conta.data_pagamento),
+            setSuccessMessage("Usuário atualizado com sucesso!");
+            setTimeout(() => {
+            navigate("/usuario");
+            }, 1000);
+        } catch (err) {
+            if (err.response?.status === 422) {
+                setErrors(Object.values(err.response.data.errors).flat());
+            } else {
+                setErrors(["Erro ao atualizar usuário"]);
+            }
+        }
     };
 
-    try {
-      const res = await api.put(`/contas/${id}/update-json`, payload);
-      alert(res.data.message || "Conta atualizada com sucesso!");
-      navigate(`/conta/${id}`);
-    } catch (err) {
-      console.error(err.response?.data || err);
-      if (err.response?.status === 422) {
-        setErrors(Object.values(err.response.data.errors).flat());
-      } else if (err.response?.data?.error) {
-        setErrors([err.response.data.error]);
-      } else {
-        setErrors(["Erro inesperado ao salvar a conta"]);
-      }
-    }
-  };
+    // Logout JWT
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    };
 
-  if (loading) return <div className="container mt-5">Carregando...</div>;
+    if (loading) return <h2>Carregando...</h2>;
 
-  return (
-    <div className="container mt-5">
-      <div className="card shadow-sm">
-        <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <h4 className="mb-0">Editar Conta</h4>
-          <button
-            className="btn btn-outline-light btn-sm"
-            onClick={() => navigate("/inicio")}
-          >
-            Voltar
-          </button>
+    return (
+        <div className="bg-light min-vh-100">
+
+            {/* Navbar */}
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div className="container-fluid">
+                    <span
+                        className="navbar-brand text-light"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/inicio")}   // <--- redireciona!
+                    >
+                        Marca I
+                    </span>
+
+                    <button className="btn btn-danger btn-sm" onClick={handleLogout}>
+                        Sair
+                    </button>
+                </div>
+            </nav>
+
+            <div className="container mt-5">
+                <div className="card shadow-sm">
+
+                    <div className="card-header bg-white">
+                        <h4>Editar Usuário</h4>
+                    </div>
+
+                    <div className="card-body">
+                        {successMessage && (
+                            <div className="alert alert-success">{successMessage}</div>
+                        )}
+
+                        {errors.length > 0 && (
+                            <div className="alert alert-danger">
+                                <ul>
+                                    {errors.map((err, index) => (
+                                        <li key={index}>{err}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-3">
+                                <label className="form-label">Nome:</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label">E-mail:</label>
+                                <input
+                                    type="email"
+                                    className="form-control"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label">Nova Senha (opcional):</label>
+                                <input
+                                    type="password"
+                                    className="form-control"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="form-label">Confirmar Nova Senha:</label>
+                                <input
+                                    type="password"
+                                    className="form-control"
+                                    value={passwordConfirmation}
+                                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                />
+                            </div>
+
+                            <button type="submit" className="btn btn-success">
+                                Confirmar Mudanças
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-secondary ms-2"
+                                onClick={() => navigate("/usuario")}
+                            >
+                                Cancelar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div className="card-body">
-          {errors.length > 0 && (
-            <div className="alert alert-danger">
-              <strong>Erro!</strong>
-              <ul className="mb-0">
-                {errors.map((err, i) => (
-                  <li key={i}>{err}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="descricao" className="form-label">Descrição</label>
-              <input
-                type="text"
-                id="descricao"
-                name="descricao"
-                className="form-control"
-                value={conta.descricao}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="preco" className="form-label">Preço (R$)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="preco"
-                name="preco"
-                className="form-control"
-                value={conta.preco}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label htmlFor="data_vencimento" className="form-label">Data de Vencimento</label>
-                <input
-                  type="datetime-local"
-                  id="data_vencimento"
-                  name="data_vencimento"
-                  className="form-control"
-                  value={conta.data_vencimento}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="col-md-6 mb-3">
-                <label htmlFor="data_pagamento" className="form-label">Data de Pagamento</label>
-                <input
-                  type="datetime-local"
-                  id="data_pagamento"
-                  name="data_pagamento"
-                  className="form-control"
-                  value={conta.data_pagamento}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="status" className="form-label">Status</label>
-              <select
-                name="status"
-                id="status"
-                className="form-select"
-                value={conta.status}
-                onChange={handleChange}
-                required
-              >
-                <option value="Aberta">Aberta</option>
-                <option value="Quitada">Quitada</option>
-              </select>
-            </div>
-
-            <div className="d-flex justify-content-between">
-              <button type="button" className="btn btn-secondary" onClick={() => navigate(`/conta/${id}`)}>Cancelar</button>
-              <button type="submit" className="btn btn-success">Salvar Alterações</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

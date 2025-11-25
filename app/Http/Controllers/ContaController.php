@@ -8,6 +8,39 @@ use Illuminate\Support\Facades\Auth;
 
 class ContaController extends Controller
 {
+        public function store(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não logado'], 401);
+        }
+
+        // Validação
+        $validated = $request->validate([
+            'descricao' => 'required|string|max:255',
+            'preco' => 'required|numeric',
+            'data_vencimento' => 'required|date',
+            'data_pagamento' => 'nullable|date',
+            'status' => 'required|in:Aberta,Quitada'
+        ]);
+
+        // Criação da conta
+        $conta = Conta::create([
+            'user_id' => $user->id,
+            'descricao' => $validated['descricao'],
+            'preco' => $validated['preco'],
+            'data_vencimento' => $validated['data_vencimento'],
+            'data_pagamento' => $validated['data_pagamento'] ?? null,
+            'status' => $validated['status'],
+        ]);
+
+        return response()->json([
+            'message' => 'Conta criada com sucesso!',
+            'conta' => $conta
+        ], 201);
+    }
+
     // Retorna todas as contas do usuário logado (JSON)
     public function getContasJson()
     {
@@ -50,25 +83,29 @@ class ContaController extends Controller
     }
 
     // Atualização via JSON
-    public function updateJson(Request $request, Conta $conta)
-    {
-        if ($conta->user_id !== Auth::id()) {
-            return response()->json(['error' => 'Ação não autorizada'], 403);
-        }
+public function updateJson(Request $request, $id)
+{
+    $conta = Conta::where('id', $id)
+        ->where('user_id', Auth::id())
+        ->first();
 
-        $request->validate([
-            'descricao' => 'required|string|max:255',
-            'preco' => 'required|numeric',
-            'data_vencimento' => 'required|date',
-        ]);
-
-        $conta->update($request->all());
-
-        return response()->json([
-            'message' => 'Conta atualizada com sucesso!',
-            'conta' => $conta
-        ]);
+    if (!$conta) {
+        return response()->json(['error' => 'Ação não autorizada'], 403);
     }
+
+    $request->validate([
+        'descricao' => 'required|string|max:255',
+        'preco' => 'required|numeric',
+        'data_vencimento' => 'required|date',
+    ]);
+
+    $conta->update($request->all());
+
+    return response()->json([
+        'message' => 'Conta atualizada com sucesso!',
+        'conta' => $conta
+    ]);
+}
     //soft delete das contas 
     public function destroy($id)
 {

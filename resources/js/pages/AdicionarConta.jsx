@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 export default function AdicionarConta() {
   const navigate = useNavigate();
+
   const [conta, setConta] = useState({
     descricao: "",
     preco: "",
@@ -12,6 +14,7 @@ export default function AdicionarConta() {
     data_pagamento: "",
     status: "Aberta",
   });
+
   const [errors, setErrors] = useState([]);
 
   const handleChange = (e) => {
@@ -22,29 +25,20 @@ export default function AdicionarConta() {
     e.preventDefault();
     setErrors([]);
 
-    const token = localStorage.getItem("token"); // 🔑 pega o JWT
-
     try {
-      const res = await fetch("/api/contas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 🔥 envia JWT
-        },
-        body: JSON.stringify(conta),
-      });
+      const res = await api.post("/contas", conta);
 
-      if (res.ok) {
+      if (res.status === 201 || res.status === 200) {
         navigate("/inicio");
-      } else if (res.status === 422) {
-        const data = await res.json();
-        setErrors(data.errors || ["Erro de validação"]);
-      } else {
-        alert("Erro inesperado ao salvar a conta");
       }
     } catch (err) {
       console.error(err);
-      alert("Erro ao conectar ao servidor");
+
+      if (err.response?.status === 422) {
+        setErrors(Object.values(err.response.data.errors).flat());
+      } else {
+        alert("Erro inesperado ao salvar a conta");
+      }
     }
   };
 
@@ -54,8 +48,9 @@ export default function AdicionarConta() {
         <div className="card-header bg-dark text-white">
           <h4>Adicionar Conta</h4>
         </div>
-        <div className="card-body">
 
+        <div className="card-body">
+          {/* Exibir erros */}
           {errors.length > 0 && (
             <div className="alert alert-danger">
               <strong>Erro!</strong>
@@ -144,7 +139,6 @@ export default function AdicionarConta() {
               </button>
             </div>
           </form>
-
         </div>
       </div>
     </div>

@@ -21,6 +21,15 @@ export default function TelaInicio() {
 
   const token = localStorage.getItem("token");
 
+  // Função para formatar preços no padrão BR
+  function formatarPreco(valor) {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "decimal",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(valor);
+  }
+
   useEffect(() => {
     const verificarLogin = async () => {
       try {
@@ -96,8 +105,12 @@ export default function TelaInicio() {
         .includes(filtroDescricao.toLowerCase());
 
       const vencimento = new Date(c.data_vencimento);
-      const inicial = filtroVencimentoInicial ? new Date(filtroVencimentoInicial) : null;
-      const final = filtroVencimentoFinal ? new Date(filtroVencimentoFinal) : null;
+      const inicial = filtroVencimentoInicial
+        ? new Date(filtroVencimentoInicial)
+        : null;
+      const final = filtroVencimentoFinal
+        ? new Date(filtroVencimentoFinal)
+        : null;
       const vencimentoMatch =
         (!inicial || vencimento >= inicial) && (!final || vencimento <= final);
 
@@ -189,9 +202,7 @@ export default function TelaInicio() {
 
         <h5 className="mb-3">
           Total:{" "}
-          <strong>
-            R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-          </strong>
+          <strong>R$ {formatarPreco(total)}</strong>
         </h5>
 
         {/* FILTROS DE PESQUISA */}
@@ -276,7 +287,10 @@ export default function TelaInicio() {
                 <tr key={c.id}>
                   <td>{c.id}</td>
                   <td>{c.descricao}</td>
-                  <td>R$ {parseFloat(c.preco).toFixed(2)}</td>
+
+                  {/* CORRIGIDO AQUI */}
+                  <td>R$ {formatarPreco(c.preco)}</td>
+
                   <td>{c.vencFormatado}</td>
                   <td>{c.pagFormatado}</td>
                   <td>
@@ -315,19 +329,32 @@ export default function TelaInicio() {
         <nav className="d-flex justify-content-center my-3">
           <ul className="pagination">
             <li className={`page-item ${paginaAtual === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => changePage(paginaAtual - 1)}>
+              <button
+                className="page-link"
+                onClick={() => changePage(paginaAtual - 1)}
+              >
                 Anterior
               </button>
             </li>
             {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${paginaAtual === i + 1 ? "active" : ""}`}>
+              <li
+                key={i}
+                className={`page-item ${paginaAtual === i + 1 ? "active" : ""}`}
+              >
                 <button className="page-link" onClick={() => changePage(i + 1)}>
                   {i + 1}
                 </button>
               </li>
             ))}
-            <li className={`page-item ${paginaAtual === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => changePage(paginaAtual + 1)}>
+            <li
+              className={`page-item ${
+                paginaAtual === totalPaginas ? "disabled" : ""
+              }`}
+            >
+              <button
+                className="page-link"
+                onClick={() => changePage(paginaAtual + 1)}
+              >
                 Próxima
               </button>
             </li>
@@ -341,12 +368,22 @@ export default function TelaInicio() {
           <div className="modal-content shadow-lg border-0">
             <div className="modal-header bg-danger text-white">
               <h5 className="modal-title">Excluir Conta</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
             </div>
-            <div className="modal-body">Tem certeza que deseja excluir esta conta?</div>
+            <div className="modal-body">
+              Tem certeza que deseja excluir esta conta?
+            </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button className="btn btn-danger" onClick={excluirConta}>Excluir</button>
+              <button className="btn btn-secondary" data-bs-dismiss="modal">
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={excluirConta}>
+                Excluir
+              </button>
             </div>
           </div>
         </div>
@@ -358,12 +395,22 @@ export default function TelaInicio() {
           <div className="modal-content shadow-lg border-0">
             <div className="modal-header bg-warning">
               <h5 className="modal-title">Encerrar Sessão</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
             </div>
-            <div className="modal-body">Tem certeza que deseja sair da sua conta?</div>
+            <div className="modal-body">
+              Tem certeza que deseja sair da sua conta?
+            </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button className="btn btn-warning" onClick={handleLogout}>Sair</button>
+              <button className="btn btn-secondary" data-bs-dismiss="modal">
+                Cancelar
+              </button>
+              <button className="btn btn-warning" onClick={handleLogout}>
+                Sair
+              </button>
             </div>
           </div>
         </div>

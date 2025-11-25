@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
@@ -26,23 +26,18 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
     // ### CONTAS ###
-    Route::put('/contas/{conta}/update-json', [ContaController::class, 'updateJson']);
-    Route::post('/contas', [ContaController::class, 'store']);
-    Route::delete('/contas/{conta}', [ContaController::class, 'destroy']);
     Route::get('/contas-json', [ContaController::class, 'getContasJson']);
-    // Exibir detalhes de uma conta
-    Route::get('/contas/{conta}', [ContaController::class, 'show']);
-    // Rota para buscar uma conta pelo ID
-    Route::get('/contas/{conta}', [ContaController::class, 'showContaJson']);
+    Route::get('/contas/{id}', [ContaController::class, 'showContaJson']);
+    Route::post('/contas', [ContaController::class, 'store']);
+    Route::put('/contas/{id}/update-json', [ContaController::class, 'updateJson']);
+    Route::delete('/contas/{id}', [ContaController::class, 'destroy']);
 
     // ### USUÁRIOS ###
     Route::put('/user/{id}', [UserController::class, 'update']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
 });
+
 // test do DNS
 Route::get('/test-dns', function () {
     return checkdnsrr('gmail.com', 'MX') ? 'OK' : 'FAIL';
 });
-
-
-
